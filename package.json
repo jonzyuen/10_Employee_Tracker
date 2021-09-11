@@ -2,7 +2,7 @@
   "name": "10_Employee_Tracker",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js"
@@ -22,6 +22,7 @@
     "console.table": "^0.10.0",
     "inquirer": "^8.1.2",
     "mysql": "^2.18.1",
-    "mysql2": "^2.3.0"
+    "mysql2": "^2.3.0",
+    "nodemon": "^2.0.12"
   }
 }
