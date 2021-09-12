@@ -137,12 +137,12 @@ function addRole() {
     {
       name: 'roleSalary',
       type: 'integer',
-      message: 'Enter new Role salary'
+      message: 'Enter new Role salary.'
     },
     {
       name: 'roleDepartment',
       type: 'integer',
-      message: 'Enter new Role department'
+      message: 'Enter new Role department ID.'
     }
   ])
   .then(function(res) {
@@ -170,25 +170,59 @@ function addEmployee() {
     {
       name: 'employeeLName',
       type: 'input',
-      message: 'Enter new Employee last name'
+      message: 'Enter new Employee last name.'
     },
     {
       name: 'employeeRole',
       type: 'integer',
-      message: 'Enter new Role department'
+      message: 'Enter new Employee Role ID.'
+    },
+    {
+      name: 'employeeManager',
+      type: 'confirm',
+      message: 'Does new Employee have a Manager?'
     }
   ])
   .then(function(res) {
     connection.query('INSERT INTO role SET ?',
     {
-      title: res.roleName,
-      salary: res.roleSalary,
-      department_id: res.roleDepartment
+      first_name: res.employeeFName,
+      last_name: res.employeeLName,
+      role_id: res.employeeRole
     },
     function(err, res) {
       if (err) throw err;
       console.table(res);
       prompts();
     });
+  });
+};
+
+function updateEmployee() {
+  let employeeList = [];
+  let roleList = [];
+
+  connection.query('SELECT * FROM employee',
+  function(err, res) {
+    if (err) throw err;
+
+    for (let i = 0; i < res.length; i++) {
+      let employeeChoice = 
+        res[i].id + ' ' + res[i].first_name + ' ' + res[i].last_name;
+        employeeList.push(employeeChoice);
+    };
+
+    inquirer.prompt([
+      {
+        type: 'list',
+        name: 'employeeUpdate',
+        choices: employeeList
+      },
+      {
+        type: 'list',
+        message: 'Select Employee new Role',
+        choices: ['']
+      }
+    ]);
   });
 };
