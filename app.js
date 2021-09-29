@@ -86,8 +86,6 @@ function viewAllDepartments() {
 };
 
 function viewAllRoles() {
-  // connection.query('SELECT role.id, role.title, role.salary FROM role, department.name AS department LEFT JOIN role ON d',
-  // connection.query('SELECT role.id, role.title, role.salary FROM role LEFT JOIN department ON role.department_id = department.id',
   connection.query('SELECT role.id, role.title, role.salary, department.name AS department FROM role LEFT JOIN department on role.department_id = department.id',
   function (err, res) {
     if (err) throw err;
@@ -98,7 +96,7 @@ function viewAllRoles() {
 };
 
 function viewAllEmployees() {
-  connection.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department on role.department_id = department.id',
+  connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee JOIN role ON employee.role_id=role.id JOIN department ON role.department_id = department.id`,
   function (err, res) {
     if (err) throw err;
 
@@ -136,12 +134,12 @@ function addRole() {
     },
     {
       name: 'roleSalary',
-      type: 'integer',
+      type: 'number',
       message: 'Enter new Role salary.'
     },
     {
       name: 'roleDepartment',
-      type: 'integer',
+      type: 'number',
       message: 'Enter new Role department ID.'
     }
   ])
@@ -174,21 +172,29 @@ function addEmployee() {
     },
     {
       name: 'employeeRole',
-      type: 'integer',
+      type: 'number',
       message: 'Enter new Employee Role ID.'
     },
     {
       name: 'employeeManager',
       type: 'confirm',
-      message: 'Does new Employee have a Manager?'
+      message: 'Does new Employee have a Manager?',
+      default: false
+    }, 
+    {
+      when: (res) => res.employeeManager === true,
+      name: 'employeeManagerChoice',
+      type: 'number',
+      message: "Select new Employee's Manager ID"
     }
   ])
   .then(function(res) {
-    connection.query('INSERT INTO role SET ?',
+    connection.query('INSERT INTO employee SET ?',
     {
       first_name: res.employeeFName,
       last_name: res.employeeLName,
-      role_id: res.employeeRole
+      role_id: res.employeeRole,
+      manager_id : res.employeeManagerChoice
     },
     function(err, res) {
       if (err) throw err;
@@ -200,7 +206,6 @@ function addEmployee() {
 
 function updateEmployee() {
   let employeeList = [];
-  let roleList = [];
 
   connection.query('SELECT * FROM employee',
   function(err, res) {
@@ -214,15 +219,28 @@ function updateEmployee() {
 
     inquirer.prompt([
       {
-        type: 'list',
-        name: 'employeeUpdate',
-        choices: employeeList
+        type: 'input',
+        name: 'employeeIdUpdate',
+        message: 'Enter Employee ID.',
       },
       {
-        type: 'list',
-        message: 'Select Employee new Role',
-        choices: ['']
+        type: 'input',
+        name: 'roleIdUpdate',
+        message: 'Enter new Role ID.'
       }
-    ]);
+    ])
+    .then(function(res) {
+      connection.query('UPDATE employee SET role_id = ? WHERE id = ?',
+      [
+        res.roleIdUpdate,
+        res.employeeIdUpdate
+      ],
+      (err, res) => {
+        if (err) throw err;
+
+        console.table(res);
+        prompts();
+      });
+    });
   });
 };
